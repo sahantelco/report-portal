@@ -1,0 +1,119 @@
+﻿<div class="p-4">
+    <div class="container">
+        <h1>Reporting - Student Snapshot</h1>
+
+        <!--Search field start--->
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="class">Class</label>
+                <br>
+                <mat-form-field appearance="fill" class="w-90">
+                    <mat-select [(value)]="classSelected" id="class-field" placeholder="Class List"
+                        (selectionChange)="onClassChange()">
+                        <mat-option *ngFor="let class of classes" [value]="class.name">
+                            {{class.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="form-group col">
+                <label for="student">Student</label>
+                <br>
+                <mat-form-field appearance="fill" class="w-90">
+                    <mat-select [(value)]="studentSelected" id="student-field" placeholder="Student List"
+                        (selectionChange)="onStudentChange()">
+                        <mat-option *ngFor="let student of studentArr" [value]="student">
+                            {{student}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="form-group col">
+                <label for="student">Date range</label>
+                <br>
+                <mat-form-field appearance="fill" class="w-90">
+                    <mat-date-range-input [rangePicker]="picker" [formGroup]="range">
+                        <input matStartDate placeholder="Start Date" formControlName="start">
+                        <input matEndDate placeholder="End Date" formControlName="end"
+                            (dateInput)="onDateRangeValueChange()">
+                    </mat-date-range-input>
+
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+            </div>
+        </div>
+        <h3 class="text-center mt-4" *ngIf="dateSelected">Overall results for the period: <b>{{range.value.start |
+                date:'mediumDate'}} - {{range.value.end | date:'mediumDate'}}</b></h3>
+
+        <!--Stacked bar chart start--->
+        <div class="stacked-bar-graph">
+            <ng-container *ngFor="let val of graphdata">
+                <span [ngStyle]="{ 'width': val.weak + '%' }" *ngIf="val.weak != 0" class="bar-1"></span>
+                <span [ngStyle]="{ 'width': val.ok + '%' }" *ngIf="val.ok != 0" class="bar-2"></span>
+                <span [ngStyle]="{ 'width': val.good + '%' }" *ngIf="val.good != 0" class="bar-3"></span>
+                <span [ngStyle]="{ 'width': val.excellent + '%' }" *ngIf="val.excellent != 0"
+                    class="bar-4"></span>
+            </ng-container>
+        </div>
+        <div class="x-axis">
+            <ul class="legend">
+                <ng-container *ngFor="let val of graphdata">
+                    <li class="legend-weak">Weak ({{val.weak}}%)</li>
+                    <li class="legend-ok">OK ({{val.ok}}%)</li>
+                    <li class="legend-good">Good ({{val.good}}%)</li>
+                    <li class="legend-excellent">Excellent ({{val.excellent}}%)</li>
+                </ng-container>
+            </ul>
+        </div>
+
+        <!---Activity table start--->
+        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+
+            <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Date Completed </th>
+                <td mat-cell *matCellDef="let element"> {{element.date | date:'mediumDate'}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="content">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Content </th>
+                <td mat-cell *matCellDef="let element"> {{element.content}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+                <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="skill">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Skill </th>
+                <td mat-cell *matCellDef="let element"> {{element.skill}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="result">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Result </th>
+                <td mat-cell *matCellDef="let element"
+                    [ngClass]="{ excellent: element.result >= 90, good: element.result >= 80 && element.result < 90, ok: element.result >= 60 && element.result < 80, weak:element.result < 60}">
+                    <b>{{element.result}}% </b>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="time">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Time Spent </th>
+                <td mat-cell *matCellDef="let element"> {{element.time}} </td>
+            </ng-container>
+
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <ng-container *ngIf="dataSource.data.length == 0">
+            <div class="no-result">No content has been completed by {{studentSelected}} for {{range.value.start |
+                date:'mediumDate'}} to {{range.value.end | date:'mediumDate'}} !!</div>
+        </ng-container>
+
+    </div>
+</div>
